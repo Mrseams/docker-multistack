@@ -1,13 +1,16 @@
-FROM node:20-alpine as build
+# Build NestJS
+FROM node:20-alpine AS builder
 WORKDIR /app
+COPY package*.json ./
+RUN npm ci
 COPY . .
-RUN npm install && npm run build
+RUN npm run build
 
+# Runtime container
 FROM node:20-alpine
 WORKDIR /app
-COPY --from=build /app/dist ./dist
-COPY package.json .
-RUN npm install --omit=dev
-USER node
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+RUN npm ci --omit=dev
 EXPOSE 3000
-CMD ["node", "dist/main"]
+CMD ["node", "dist/main.js"]

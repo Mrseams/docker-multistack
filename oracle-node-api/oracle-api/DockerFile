@@ -1,12 +1,7 @@
-FROM node:20-bullseye
+FROM node:20-alpine
 WORKDIR /app
-COPY package*.json ./
-RUN apt-get update && apt-get install -y libaio1 unzip curl \
-  && curl -L -o oracle.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linux.x64-21.1.0.0.0.zip \
-  && unzip oracle.zip -d /opt/oracle \
-  && rm oracle.zip \
-  && npm install
+COPY package.json ./
+RUN npm install
 COPY . .
-ENV LD_LIBRARY_PATH=/opt/oracle/instantclient_21_1
-USER node
+EXPOSE 5000
 CMD ["node", "index.js"]

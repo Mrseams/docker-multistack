@@ -1,36 +1,88 @@
 services:
+  # Angular SPA
+  spa:
+    build:
+      context: ./angular/spa
+      dockerfile: Dockerfile
+    container_name: spa
+    restart: unless-stopped
+    ports:
+      - "4200:80" # accessible via localhost:4200
+    depends_on:
+      - api
+    networks:
+      - webnet
+
+  # Angular SSR
+  ssr:
+    build:
+      context: ./angular/ssr
+      dockerfile: Dockerfile
+    container_name: ssr
+    restart: unless-stopped
+    ports:
+      - "4000:4000" # SSR server listening port
+    networks:
+      - webnet
+
+  # NestJS API
+  api:
+    build:
+      context: ./nestjs/nestjs-api
+      dockerfile: Dockerfile
+    container_name: nest-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - webnet
+
+  # Express App
+  express:
+    build:
+      context: ./express/express-app
+      dockerfile: Dockerfile
+    container_name: express-app
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    networks:
+      - webnet
+
+  # Oracle Node API
+  oracle-api:
+    build:
+      context: ./oracle-node-api/oracle-api
+      dockerfile: Dockerfile
+    container_name: oracle-api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    networks:
+      - webnet
+    environment:
+      - NODE_ENV=production
+    # Ajouter le volume de instantclient si nécessaire
+
+  # NGINX Reverse Proxy
   nginx:
-    build: ./nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx-proxy
+    restart: unless-stopped
     ports:
       - "80:80"
-      - "443:443"
+    volumes:
+      - ./nginx/waf:/etc/nginx/waf:ro
     depends_on:
       - spa
       - ssr
-      - nestjs-api
-      - express-app
+      - api
+      - express
+    networks:
+      - webnet
 
-  spa:
-    build: ./angular/spa
-    expose:
-      - "81"
-
-  ssr:
-    build: ./angular/ssr
-    expose:
-      - "4000"
-
-  nestjs-api:
-    build: ./nestjs/nestjs-api
-    expose:
-      - "3000"
-
-  express-app:
-    build: ./express/express-app
-    expose:
-      - "3001"
-
-  oracle-node-api:
-    build: ./oracle-node-api/oracle-api
-    expose:
-      - "8888"
+networks:
+  webnet:
+    driver: bridge
