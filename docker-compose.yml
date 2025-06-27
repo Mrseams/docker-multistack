@@ -1,0 +1,36 @@
+services:
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - spa
+      - ssr
+      - nestjs-api
+      - express-app
+
+  spa:
+    build: ./angular/spa
+    expose:
+      - "81"
+
+  ssr:
+    build: ./angular/ssr
+    expose:
+      - "4000"
+
+  nestjs-api:
+    build: ./nestjs/nestjs-api
+    expose:
+      - "3000"
+
+  express-app:
+    build: ./express/express-app
+    expose:
+      - "3001"
+
+  oracle-node-api:
+    build: ./oracle-node-api/oracle-api
+    expose:
+      - "8888"

@@ -1,0 +1,24 @@
+# Node.js dependencies
+**/node_modules/
+
+# Build outputs
+**/dist/
+**/build/
+
+# Logs
+**/*.log
+
+# Environment files
+**/.env
+**/.env.*
+
+# Test coverage
+**/coverage/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
