@@ -1,18 +1,20 @@
 FROM nginx:1.25-alpine
 
-RUN apk add --no-cache apache2-utils libxml2 libxslt curl git \
-  && mkdir -p /etc/nginx/modsec /etc/nginx/certs
+# Supprimer la config par défaut si existante
+RUN rm -f /etc/nginx/conf.d/default.conf
 
+# Copie de ta configuration personnalisée
 COPY default.conf /etc/nginx/conf.d/default.conf
-COPY waf/modsecurity.conf /etc/nginx/modsec/modsecurity.conf
 
-RUN sed -i '/http {/a \    server_tokens off;' /etc/nginx/nginx.conf
+# Correction des permissions pour éviter les erreurs
+RUN mkdir -p /var/cache/nginx/client_temp && \
+  chown -R nginx:nginx /var/cache/nginx && \
+  chmod -R 755 /var/cache/nginx
 
-RUN adduser -D -g 'www' nginxuser && \
-  chown -R nginxuser:nginxuser /var/cache/nginx /var/run /var/log/nginx /etc/nginx
+# Désactive la directive "user nginx;" si tu l'as dans nginx.conf
+# Sinon, NGINX tentera de drop les privilèges (et échouera si pas root)
+# Alternativement, si tu veux la laisser, assure-toi d’exécuter en root.
 
-USER nginxuser
-
-EXPOSE 80 443
+EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
