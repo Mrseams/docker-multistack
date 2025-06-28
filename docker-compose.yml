@@ -3,11 +3,11 @@ services:
   spa:
     build:
       context: ./angular/spa
-      dockerfile: Dockerfile
+      dockerfile: DockerFile
     container_name: spa
     restart: unless-stopped
     ports:
-      - "4200:80" # accessible via localhost:4200
+      - "4200:80"
     depends_on:
       - api
     networks:
@@ -17,11 +17,11 @@ services:
   ssr:
     build:
       context: ./angular/ssr
-      dockerfile: Dockerfile
+      dockerfile: DockerFile
     container_name: ssr
     restart: unless-stopped
     ports:
-      - "4000:4000" # SSR server listening port
+      - "4000:4000"
     networks:
       - webnet
 
@@ -29,7 +29,7 @@ services:
   api:
     build:
       context: ./nestjs/nestjs-api
-      dockerfile: Dockerfile
+      dockerfile: DockerFile
     container_name: nest-api
     restart: unless-stopped
     ports:
@@ -41,7 +41,7 @@ services:
   express:
     build:
       context: ./express/express-app
-      dockerfile: Dockerfile
+      dockerfile: DockerFile
     container_name: express-app
     restart: unless-stopped
     ports:
@@ -53,7 +53,7 @@ services:
   oracle-api:
     build:
       context: ./oracle-node-api/oracle-api
-      dockerfile: Dockerfile
+      dockerfile: DockerFile
     container_name: oracle-api
     restart: unless-stopped
     ports:
@@ -62,7 +62,6 @@ services:
       - webnet
     environment:
       - NODE_ENV=production
-    # Ajouter le volume de instantclient si nécessaire
 
   # NGINX Reverse Proxy
   nginx:
@@ -79,6 +78,7 @@ services:
       - spa
       - ssr
       - api
+      - oracle-api
       - express
     networks:
       - webnet
